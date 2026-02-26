@@ -50,5 +50,9 @@
     "logsbot": {
       "allow": true
     }
-  }
+  },
+  "commandUnload": [
+    "gpt5.js",
+    "info.js"
+  ]
 }

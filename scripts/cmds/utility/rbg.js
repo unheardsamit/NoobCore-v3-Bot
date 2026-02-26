@@ -1,56 +1,86 @@
-const A = require("axios");
-const B = require("fs-extra");
-const C = require("path");
-const G = C.join(__dirname, "cache", `rbg_${Date.now()}.png`);
-const NC = "https://raw.githubusercontent.com/noobcore404/NC-STORE/refs/heads/main/NCApiUrl.json";
+const axios = require("axios");
+
+const noobcore =
+  "https://raw.githubusercontent.com/noobcore404/NC-STORE/main/NCApiUrl.json";
+
+async function getFahimApi() {
+  const res = await axios.get(noobcore, { timeout: 10000 });
+  if (!res.data?.fahim) {
+    throw new Error("fahim API not found");
+  }
+  return res.data.fahim;
+}
 
 module.exports = {
   config: {
     name: "rbg",
-    aliases: ["removebg"],
-    version: "0.0.1",
-    author: "𝑵𝑪-𝑨𝒓𝒀𝑨𝑵",
-    countDown: 10,
-    premium: true,
-    role: 0,
-    category: "image"
+    version: "1.0",
+    author: "NC-Saimx69x", //Api by Fahim
+    team: "NoobCore", 
+    shortDescription: "Remove background from image",
+    longDescription: "Removes background from replied  image",
+    guide: "{pn} (reply to image)",
   },
 
-  ncStart: async function ({ api, event, args, message }) {
-    let D;
-    if (event.type === "message_reply") {
-      const E = event.messageReply.attachments[0];
-      if (["photo", "image"].includes(E?.type)) D = E.url;
-    } else if (args[0]?.startsWith("http")) {
-      D = args[0];
-    }
-
-    if (!D) return message.reply("❌ Please reply to an image.");
-
-    const F = await message.reply("please waiting...");
+  ncStart: async function ({ api, event }) {
+    let imageUrl = "";
+    let processingMsg;
 
     try {
-      const H = await A.get(NC);
-      const I = H.data.aryan;
+      if (
+        event.type === "message_reply" &&
+        event.messageReply?.attachments?.length
+      ) {
+        imageUrl = event.messageReply.attachments[0].url;
+      } else if (event.attachments?.length) {
+        imageUrl = event.attachments[0].url;
+      } else {
+        return api.sendMessage(
+          "❌ Please reply to  an image.",
+          event.threadID,
+          event.messageID
+        );
+      }
 
-      const J = await A.get(`${I}/aryan/rbg?imageUrl=${encodeURIComponent(D)}`, {
-        responseType: "arraybuffer"
+      processingMsg = await api.sendMessage(
+        "⏳ Removing background, please wait...",
+        event.threadID,
+        null,
+        event.messageID
+      );
+
+      const BASE_URL = await getFahimApi();
+      const apiUrl = `${BASE_URL}/rbg?url=${encodeURIComponent(imageUrl)}`;
+
+      const response = await axios.get(apiUrl, {
+        responseType: "stream",
       });
 
-      await B.ensureDir(C.dirname(G));
-      B.writeFileSync(G, Buffer.from(J.data));
+      await api.sendMessage(
+        {
+          body: "✅ Background removed successfully!",
+          attachment: response.data,
+        },
+        event.threadID,
+        null,
+        event.messageID
+      );
 
-      await message.reply({
-        body: "✅ Background Removed",
-        attachment: B.createReadStream(G)
-      });
-      
-      api.unsendMessage(F.messageID);
-    } catch (K) {
-      api.unsendMessage(F.messageID);
-      return message.reply("❌ Error occurred.");
-    } finally {
-      if (B.existsSync(G)) B.unlinkSync(G);
+      if (processingMsg?.messageID) {
+        api.unsendMessage(processingMsg.messageID);
+      }
+    } catch (error) {
+      console.error("RBG Command Error:", error);
+
+      if (processingMsg?.messageID) {
+        api.unsendMessage(processingMsg.messageID);
+      }
+
+      return api.sendMessage(
+        "❌ Failed to remove background. Please try again later.",
+        event.threadID,
+        event.messageID
+      );
     }
-  }
+  },
 };

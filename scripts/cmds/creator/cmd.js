@@ -639,48 +639,95 @@ command.location = pathCommand;
 }
 
 function unloadScripts(folder, fileName, configCommands, getLang) {
-        const pathCommand = `${process.cwd()}/scripts/${folder}/${fileName}.js`;
-        if (!fs.existsSync(pathCommand)) {
-                const err = new Error(getLang("missingFile", `${fileName}.js`));
-                err.name = "FileNotFound";
-                throw err;
-        }
-        const command = require(pathCommand);
-        const commandName = command.config?.name;
-        if (!commandName)
-                throw new Error(getLang("invalidFileName", `${fileName}.js`));
-        const { noobCore } = global;
-        const { ncPrefix: allOnChat, ncEvent: allncEvent, ncAnyEvent: allncAnyEvent } = noobCore;
-        const indexOnChat = allOnChat.findIndex(item => item == commandName);
-        if (indexOnChat != -1)
-                allOnChat.splice(indexOnChat, 1);
-        const indexncEvent = allncEvent.findIndex(item => item == commandName);
-        if (indexncEvent != -1)
-                allncEvent.splice(indexncEvent, 1);
-        const indexncAnyEvent = allncAnyEvent.findIndex(item => item == commandName);
-        if (indexncAnyEvent != -1)
-                allncAnyEvent.splice(indexncAnyEvent, 1);
-        // ————————————————— CHECK ALIASES ————————————————— //
-        if (command.config.aliases) {
-                let aliases = command.config?.aliases || [];
-                if (typeof aliases == "string")
-                        aliases = [aliases];
-                for (const alias of aliases)
-                        noobCore.aliases.delete(alias);
-        }
-        const setMap = folder == "cmds" ? "commands" : "eventCommands";
-        delete require.cache[require.resolve(pathCommand)];
-        noobCore[setMap].delete(commandName);
-        log.master("UNLOADED", getLang("unloaded", commandName));
-        const commandUnload = configCommands[folder == "cmds" ? "commandUnload" : "commandEventUnload"] || [];
-        if (!commandUnload.includes(`${fileName}.js`))
-                commandUnload.push(`${fileName}.js`);
-        configCommands[folder == "cmds" ? "commandUnload" : "commandEventUnload"] = commandUnload;
-        fs.writeFileSync(global.client.dirConfigCommands, JSON.stringify(configCommands, null, 2));
-        return {
-                status: "success",
-                name: fileName
-        };
+
+  const { noobCore } = global;
+  const setMap = folder === "cmds"
+    ? noobCore.commands
+    : noobCore.eventCommands;
+
+  let command = null;
+  let commandName = null;
+
+  for (const [name, cmd] of setMap.entries()) {
+
+    const filePath = cmd.location || "";
+
+    if (
+      name === fileName ||
+      name === fileName.replace(".js", "") ||
+      filePath.endsWith(fileName) ||
+      filePath.endsWith(fileName + ".js")
+    ) {
+      command = cmd;
+      commandName = name;
+      break;
+    }
+  }
+
+  if (!command)
+    throw Object.assign(
+      new Error(getLang("missingFile", fileName)),
+      { name: "FileNotFound" }
+    );
+
+  const pathCommand = command.location;
+
+  const {
+    ncPrefix,
+    ncEvent,
+    ncAnyEvent,
+    aliases
+  } = noobCore;
+  const remove = (arr) => {
+    const i = arr.indexOf(commandName);
+    if (i !== -1) arr.splice(i, 1);
+  };
+
+  remove(ncPrefix);
+  remove(ncEvent);
+  remove(ncAnyEvent);
+
+  if (command.config.aliases) {
+    let list = command.config.aliases;
+    if (typeof list === "string")
+      list = [list];
+
+    for (const a of list)
+      aliases.delete(a);
+  }
+
+  delete require.cache[
+    require.resolve(pathCommand)
+  ];
+
+  setMap.delete(commandName);
+  const keyUnload =
+    folder === "cmds"
+      ? "commandUnload"
+      : "commandEventUnload";
+
+  configCommands[keyUnload] =
+    configCommands[keyUnload] || [];
+
+  if (!configCommands[keyUnload].includes(path.basename(pathCommand)))
+    configCommands[keyUnload].push(
+      path.basename(pathCommand)
+    );
+
+  fs.writeFileSync(
+    global.client.dirConfigCommands,
+    JSON.stringify(configCommands, null, 2)
+  );
+
+  log.master(
+    "UNLOADED",
+    getLang("unloaded", commandName)
+  );
+
+  return {
+    status: "success",
+    name: commandName
+  };
 }
 
 global.utils.loadScripts = loadScripts;

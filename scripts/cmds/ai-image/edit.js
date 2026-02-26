@@ -1,70 +1,85 @@
 const axios = require("axios");
 const fs = require("fs-extra");
 const path = require("path");
-const filePath = path.join(__dirname, "cache", `edit_${Date.now()}.png`);
 
-const nix = "https://raw.githubusercontent.com/noobcore404/NC-STORE/refs/heads/main/NCApiUrl.json";
+const apiUrl = "https://raw.githubusercontent.com/Saim-x69x/sakura/main/ApiUrl.json";
+
+async function getApiUrl() {
+  const res = await axios.get(apiUrl);
+  return res.data.apiv3;
+}
+
+async function urlToBase64(url) {
+  const res = await axios.get(url, { responseType: "arraybuffer" });
+  return Buffer.from(res.data).toString("base64");
+}
 
 module.exports = {
   config: {
     name: "edit",
-    aliases: ["nano", "banana"],
-    version: "0.0.1",
-    author: "NC ArYAN",
-    countDown: 10,
+    version: "1.0",
+    author: "NC-Saimx69x", //API by Kay
+    countDown: 5,
     role: 0,
-    category: "Editing"
+    shortDescription: "Edit an image using text prompt",
+    longDescription: "Only edits an existing image. Must reply to an image.",
+    guide: "{p}edit <prompt> (reply to an image)"
   },
 
   ncStart: async function ({ api, event, args, message }) {
-    let imageUrl = null;
+    const repliedImage = event.messageReply?.attachments?.[0];
+    const prompt = args.join(" ").trim();
 
-    if (
-      event.type === "message_reply" &&
-      event.messageReply?.attachments?.length
-    ) {
-      const img = event.messageReply.attachments[0];
-      if (img.type === "photo" || img.type === "image") {
-        imageUrl = img.url;
-      }
+    if (!repliedImage || repliedImage.type !== "photo") {
+      return message.reply(
+        "❌ Please reply to an image to edit it.\n\nExample:\n/edit make it anime style"
+      );
     }
 
-    if (!imageUrl) {
-      api.setMessageReaction("❌", event.messageID, () => {}, true);
-      return message.reply("🧘 Please reply to an image");
+    if (!prompt) {
+      return message.reply("❌ Please provide an edit prompt.");
     }
 
-    const T = args.join(" ");
-    if (!T) {
-      api.setMessageReaction("❌", event.messageID, () => {}, true);
-      return message.reply("🧘 Prompt required");
-    }
+    const processingMsg = await message.reply("🖌️ Editing image...");
 
-    api.setMessageReaction("⏳", event.messageID, () => {}, true);
+    const imgPath = path.join(
+      __dirname,
+      "cache",
+      `${Date.now()}_edit.jpg`
+    );
 
     try {
-      const ok = await axios.get(nix);
-      const nc = ok.data.aryan;
+      const API_URL = await getApiUrl();
 
-      const res = await axios.get(
-        `${nc}/aryan/nano-banana?prompt=${encodeURIComponent(T)}&imageUrl=${encodeURIComponent(imageUrl)}&apikey=nc`,
-        { responseType: "arraybuffer" }
-      );
+      const payload = {
+        prompt: `Edit the given image based on this description:\n${prompt}`,
+        images: [await urlToBase64(repliedImage.url)],
+        format: "jpg"
+      };
 
-      await fs.ensureDir(path.dirname(filePath));
-      fs.writeFileSync(filePath, Buffer.from(res.data));
-
-      await message.reply({
-        body: `✅ image Edited Successfully\n📐 ${T}`,
-        attachment: fs.createReadStream(filePath)
+      const res = await axios.post(API_URL, payload, {
+        responseType: "arraybuffer",
+        timeout: 180000
       });
 
-      api.setMessageReaction("✅", event.messageID, () => {}, true);
-    } catch (e) {
-      api.setMessageReaction("❌", event.messageID, () => {}, true);
-      message.reply("🤼 nano banana issue");
+      await fs.ensureDir(path.dirname(imgPath));
+      await fs.writeFile(imgPath, Buffer.from(res.data));
+
+      await api.unsendMessage(processingMsg.messageID);
+
+      await message.reply({
+        body: `✅ Image edited successfully\nPrompt: ${prompt}`,
+        attachment: fs.createReadStream(imgPath)
+      });
+
+    } catch (error) {
+      console.error("EDIT Error:", error?.response?.data || error.message);
+      await api.unsendMessage(processingMsg.messageID);
+      message.reply("❌ Failed to edit image. Try again later.");
     } finally {
-      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+      if (fs.existsSync(imgPath)) {
+        await fs.remove(imgPath);
+      }
     }
   }
 };
