@@ -107,7 +107,7 @@ module.exports = {
 
 📌 Bot Name: NoobCore-v3
 ⚡ Version: 3.0
-👨‍💻 Developer: Noob Programmer
+👨‍💻 Developer: NoobCore Team
 🌐 Platform: Facebook Messenger
 🧠 System: Modular Command + Event Driven
 🔄 Multi AppState: Enabled
