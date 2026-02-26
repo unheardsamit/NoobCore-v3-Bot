@@ -17,6 +17,12 @@
                 "files": {
                         "index.js": "fix"
                 }
+        },
+        {
+                "version": "3.0.4",
+                "files": {
+                        "fca-unofficial": "fix"
+                }
         }
 
 ]
