@@ -1,4 +1,4 @@
-<img src="https://i.ibb.co/1G0K23jj/saimx69x-7ee55e.jpg" alt="banner">
+<img src="https://i.ibb.co/0RF4hHPt/saimx69x-36aa41.png" alt="banner">
 
 <h1 align="center">
   <img src="https://i.ibb.co/1G0K23jj/saimx69x-7ee55e.jpg" width="25px">
