@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NoobCore Bot Info</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:linear-gradient(135deg,#1f1c2c,#928dab);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:20px;
+    transition:0.4s;
+}
+
+body.light{
+    background:linear-gradient(135deg,#e0eafc,#cfdef3);
+}
+
+.container{
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(15px);
+    border-radius:20px;
+    padding:30px;
+    width:100%;
+    max-width:420px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.3);
+    text-align:center;
+    color:white;
+    transition:0.4s;
+}
+
+body.light .container{
+    color:#111;
+    background:white;
+}
+
+h1{
+    font-size:24px;
+    margin-bottom:10px;
+}
+
+.toggle-btn{
+    margin-bottom:15px;
+    padding:6px 12px;
+    border:none;
+    border-radius:20px;
+    cursor:pointer;
+    font-size:12px;
+}
+
+.about-box{
+    background:rgba(255,255,255,0.15);
+    padding:12px;
+    border-radius:12px;
+    margin-bottom:15px;
+    font-size:13px;
+}
+
+.info-box{
+    background:rgba(255,255,255,0.15);
+    padding:12px;
+    border-radius:12px;
+    margin-bottom:12px;
+    transition:0.3s;
+}
+
+.info-box:hover{
+    transform:translateY(-3px);
+}
+
+.label{
+    font-size:12px;
+    opacity:0.8;
+}
+
+.value{
+    font-size:18px;
+    font-weight:600;
+    margin-top:4px;
+}
+
+a{
+    color:#00ffcc;
+    text-decoration:none;
+}
+
+.footer{
+    margin-top:10px;
+    font-size:12px;
+    opacity:0.7;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🚀 NoobCore Bot Status</h1>
+
+    <button class="toggle-btn" onclick="toggleMode()">🌑/🕯️</button>
+
+    <div class="about-box">
+        NoobCore is a powerful and lightweight Facebook bot framework 
+        designed for stability, multi-appstate support and 24/7 uptime.
+    </div>
+
+    <div class="info-box">
+        <div class="label">Uptime</div>
+        <div class="value" id="uptime">Loading...</div>
+    </div>
+
+    <div class="info-box">
+        <div class="label">Prefix</div>
+        <div class="value" id="prefix">Loading...</div>
+    </div>
+
+    <div class="info-box">
+        <div class="label">Running Bot ID</div>
+        <div class="value">
+            <a id="uid" href="#" target="_blank">Loading...</a>
+        </div>
+    </div>
+
+    <div class="info-box">
+        <div class="label">RAM Usage</div>
+        <div class="value" id="ram">Loading...</div>
+    </div>
+
+    <div class="info-box">
+        <div class="label">CPU Usage</div>
+        <div class="value" id="cpu">Loading...</div>
+    </div>
+
+    <div class="footer">
+        © 2026 NoobCore Team 🚀
+    </div>
+</div>
+
+<script>
+function animateValue(id, newValue){
+    document.getElementById(id).textContent = newValue;
+}
+
+function toggleMode(){
+    document.body.classList.toggle("light");
+}
+
+async function updateStats(){
+    try{
+        const response = await fetch('/api/stats');
+        const data = await response.json();
+
+        animateValue("uptime", data.uptime);
+        animateValue("prefix", data.prefix);
+
+        const uidElement = document.getElementById("uid");
+        if(data.uid && data.uid !== "Not running"){
+            uidElement.textContent = data.uid;
+            uidElement.href = "https://www.facebook.com/" + data.uid;
+        }else{
+            uidElement.textContent = "Not running";
+            uidElement.removeAttribute("href");
+        }
+
+        // RAM & CPU (requires backend support)
+        if(data.ram) animateValue("ram", data.ram);
+        if(data.cpu) animateValue("cpu", data.cpu);
+
+    }catch(err){
+        console.error(err);
+    }
+}
+
+updateStats();
+setInterval(updateStats,1000);
+</script>
+
+</body>
+</html>

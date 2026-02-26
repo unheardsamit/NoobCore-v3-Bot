@@ -1,0 +1,22 @@
+[
+   {
+                "version": "1.5.35",
+                "files": {
+                        "fb-chat-api/index.js": "fix: fca not working",
+                        "fb-chat-api/src/listenMqtt.js": "fix: fca not working"
+                }
+        },
+        {
+                "version": "3.0.2",
+                "files": {
+                        "index.js": "fix"
+                }
+        },
+        {
+                "version": "3.0.3",
+                "files": {
+                        "index.js": "fix"
+                }
+        }
+
+]

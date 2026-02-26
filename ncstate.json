@@ -1,0 +1,38 @@
+[
+  {
+    "key": "fr",
+    "value": "0GN6G4bujf2hVM4Ni.AWfLvgCU1APdn1bH5mDYti4tIVx5oDxBAjMev0q_U5XAzh4yR5c.Bpn2c1..AAA.0.0.Bpn51L.AWdSSLrfHrrJ0ia2VoCDddMc5vA",
+    "domain": "facebook.com",
+    "path": "/",
+    "hostOnly": false,
+    "creation": "2026-02-26T01:06:28.950Z",
+    "lastAccessed": "2026-02-26T01:09:34.625Z",
+    "secure": true,
+    "httpOnly": true,
+    "expires": "2026-05-27T01:09:31.000Z"
+  },
+  {
+    "key": "xs",
+    "value": "25%3AdsOSbIn2S7iQoQ%3A2%3A1772054401%3A-1%3A-1",
+    "domain": "facebook.com",
+    "path": "/",
+    "hostOnly": false,
+    "creation": "2026-02-26T01:06:28.962Z",
+    "lastAccessed": "2026-02-26T01:09:34.625Z",
+    "secure": true,
+    "httpOnly": true,
+    "expires": "2027-02-25T21:20:04.000Z"
+  },
+  {
+    "key": "c_user",
+    "value": "61583064794324",
+    "domain": "facebook.com",
+    "path": "/",
+    "hostOnly": false,
+    "creation": "2026-02-26T01:06:28.963Z",
+    "lastAccessed": "2026-02-26T01:09:34.625Z",
+    "secure": true,
+    "httpOnly": false,
+    "expires": "2027-02-25T21:20:04.000Z"
+  }
+]
