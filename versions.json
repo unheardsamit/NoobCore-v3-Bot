@@ -30,6 +30,15 @@
                 "files": {
                         "fca-unofficial/src/api/threads/getThreadInfo.js": "fix"
                 }
+   },
+   {
+                "version": "3.0.7",
+                "files": {
+                        "‎scripts/cmds/anime/animewallpaper.js‎": "fix",
+                         "‎scripts/cmds/image/cdp.js‎": "fix",
+                          "‎scripts/cmds/anime/amv.js‎": "update",
+                           "scripts/cmds/image/bmdp.js": "update"
+                }
    }
 
 ]
