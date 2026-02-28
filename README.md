@@ -5,7 +5,7 @@
   𝗠𝗘𝗦𝗦𝗘𝗡𝗚𝗘𝗥 𝗖𝗛𝗔𝗧 𝗕𝗢𝗧 </h1>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-3.0.3-blue?style=for-the-badge">
+  <img src="https://img.shields.io/badge/Version-3.0.7-blue?style=for-the-badge">
   <img src="https://img.shields.io/badge/Platform-Facebook_Messenger-informational?style=for-the-badge">
 </p>
 
